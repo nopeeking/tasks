@@ -1,0 +1,122 @@
+{
+	"info": {
+		"_postman_id": "4d34f960-5162-4ca0-995d-68e6b56c8069",
+		"name": "SpectroCoin",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "USD/BTC",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Response should contain currencyFrom and it should be: \" + pm.environment.get(\"currency_from\"), () => {\r",
+							"    pm.expect(jsonData).to.have.property('currencyFrom');\r",
+							"    pm.expect(jsonData.currencyFrom).to.eql(pm.environment.get(\"currency_from\"));\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response should contain currencyFromScale and it should be an int\" , () => {\r",
+							"    pm.expect(jsonData).to.have.property('currencyFromScale');\r",
+							"    pm.expect(jsonData.currencyFromScale).to.be.a('number');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response should contain currencyTo and it should be: \" + pm.environment.get(\"currency_to\"), () => {\r",
+							"    pm.expect(jsonData).to.have.property('currencyTo');\r",
+							"    pm.expect(jsonData.currencyTo).to.eql(pm.environment.get(\"currency_to\"));\r",
+							"});\r",
+							"\r",
+							"//not sure if requirement is correct, maybe currencyFromScale can contain other values?\r",
+							"pm.test(\"Response should contain currencyToScale and it should be an int\" , () => {\r",
+							"    pm.expect(jsonData).to.have.property('currencyToScale');\r",
+							"    pm.expect(jsonData.currencyFromScale).to.be.a('number');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response should contain last and it should have two decimal digits\" , () => {\r",
+							"    pm.expect(jsonData).to.have.property('last');\r",
+							"    pm.expect(jsonData.last).to.match(/\\d{1}.\\d{2}/);\r",
+							"});\r",
+							"\r",
+							"function round(value, decimals) {\r",
+							"  return Number(Math.round(value+'e'+decimals)+'e-'+decimals);\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Response should contain lastHP and it should be close to last value\" , () => {\r",
+							"    pm.expect(jsonData).to.have.property('lastHP');\r",
+							"    pm.expect(jsonData.last).to.eql(round(jsonData.lastHP, 2));\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response should contain a timestamp\" , () => {\r",
+							"    pm.expect(jsonData).to.have.property('timestamp');\r",
+							"    pm.expect(jsonData.currencyFromScale).to.be.a('number');\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Timestamp should be close to current date: \" + pm.environment.get(\"current_date\"), () => {\r",
+							"    var timestampDateTime = new Date(0); \r",
+							"    timestampDateTime.setUTCMilliseconds(jsonData.timestamp);\r",
+							"    \r",
+							"    var timestampDate = timestampDateTime.toLocaleString().split(\", \")[0];\r",
+							"    pm.expect(timestampDate).to.eql(pm.environment.get(\"current_date\"));\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Timestamp should be close to current time: \" + pm.environment.get(\"current_time\"), () => {\r",
+							"    var timestampDateTime = new Date(0); \r",
+							"    timestampDateTime.setUTCMilliseconds(jsonData.timestamp);\r",
+							"\r",
+							"    var timestampTime = timestampDateTime.toLocaleString().split(\", \")[1].replace(/(:\\d{2} )/, \" \");\r",
+							"    pm.expect(timestampTime).to.eql(pm.environment.get(\"current_time\"));\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"currency_from\", \"USD\");\r",
+							"pm.environment.set(\"currency_to\", \"BTC\");\r",
+							"\r",
+							"var currentDateTime = new Date();\r",
+							"\r",
+							"var currentDate = currentDateTime.toLocaleString().split(\",\")[0];\r",
+							"pm.environment.set(\"current_date\", currentDate);\r",
+							"\r",
+							"var currentTime = currentDateTime.toLocaleTimeString().replace(/(:\\d{2} )/, \" \");\r",
+							"pm.environment.set(\"current_time\", currentTime);\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://spectrocoin.com/scapi/ticker/{{currency_from}}/{{currency_to}}",
+					"protocol": "https",
+					"host": [
+						"spectrocoin",
+						"com"
+					],
+					"path": [
+						"scapi",
+						"ticker",
+						"{{currency_from}}",
+						"{{currency_to}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
